@@ -3,7 +3,8 @@ import cookieParser from "cookie-parser";
 import cors from "cors";
 
 // Require all the apis here
-import router from "./routes/auth.route.js";
+import authRouter from "./routes/auth.route.js";
+import interviewRouter from "./routes/interview.routes.js";
 
 const app = express();
 
@@ -15,6 +16,7 @@ app.use(cors({
 }));
 
 // Use all the routes here
-app.use("/api/auth", router);
+app.use("/api/auth", authRouter);
+app.use("/api/interview", interviewRouter)
 
 export { app };
