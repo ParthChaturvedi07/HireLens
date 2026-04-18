@@ -1,5 +1,5 @@
 import { PDFParse } from "pdf-parse";
-import generateInterviewReport from "../services/ai.services.js";
+import { generateInterviewReport, generateResumePdf } from "../services/ai.services.js";
 import interviewReportModel from "../models/interviewReport.model.js";
 
 /**
@@ -71,4 +71,31 @@ const getAllInterviewReportsController = async (req, res) => {
     });
 }
 
-export { generateInterviewReportController, getInterviewReportByIdController, getAllInterviewReportsController };
+/**
+ * @description Controller to generate ATS friendly resume
+ */
+
+const generateResumePdfController = async (req, res) => {
+    const { interviewReportId } = req.params;
+
+    const interviewReport = await interviewReportModel.findById(interviewReportId);
+
+    if (!interviewReport) {
+        return res.status(404).json({
+            message: "Interview report not found"
+        });
+    }
+
+    const { resume, jobDescription, selfDescription } = interviewReport;
+
+    const pdfBuffer = await generateResumePdf({ resume, jobDescription, selfDescription });
+
+    res.set({
+        "Content-Type": "application/pdf",
+        "Content-Disposition": `attachment; filename=resume_${interviewReportId}.pdf`
+    })
+
+    res.send(pdfBuffer);
+}
+
+export { generateInterviewReportController, getInterviewReportByIdController, getAllInterviewReportsController, generateResumePdfController };

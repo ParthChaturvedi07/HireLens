@@ -1,5 +1,5 @@
 import { useContext } from "react";
-import { getAllInterviewReports, generateInterviewReport, getInterviewReportById } from "../services/interview.api";
+import { getAllInterviewReports, generateInterviewReport, getInterviewReportById, generateResumePdf as generateResumePdfApi } from "../services/interview.api";
 import { InterviewContext } from "../interview.context";
 
 export const useInterview = () => {
@@ -53,12 +53,25 @@ export const useInterview = () => {
         }
     }
 
+    const getResumeUrl = async (interviewReportId) => {
+        try {
+            const response = await generateResumePdfApi(interviewReportId)
+            const url = window.URL.createObjectURL(new Blob([response], { type: "application/pdf" }))
+            return url;
+        } catch (error) {
+            console.error("Error generating resume pdf:", error);
+            throw error;
+        }
+    }
+
+    console.log("useInterview returning:", { keys: Object.keys({ loading, report, reports, generateReport, getReportById, getReports, getResumeUrl }) });
     return {
         loading,
         report,
         reports,
         generateReport,
         getReportById,
-        getReports
+        getReports,
+        getResumeUrl
     }
 }   
