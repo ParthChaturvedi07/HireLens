@@ -63,7 +63,7 @@ const getInterviewReportByIdController = async (req, res) => {
  * @access Private (requires valid token)
  */
 const getAllInterviewReportsController = async (req, res) => {
-    const interviewReports = (await interviewReportModel.find({ user: req.user.id })).toSorted({ createdAt: -1 }).select("-resume -selfDescription -jobDescription -__v-technicalQuestions -behavioralQuestions -skillGaps -preparationPlan")
+    const interviewReports = await interviewReportModel.find({ user: req.user.id }).sort({ createdAt: -1 }).select("-resume -selfDescription -jobDescription -__v -technicalQuestions -behavioralQuestions -skillGaps -preparationPlan")
 
     return res.status(200).json({
         message: "Interview reports fetched successfully",

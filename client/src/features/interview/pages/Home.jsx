@@ -1,18 +1,83 @@
-import React, { useState } from "react";
-import { Sparkles, CheckCircle, FileText } from "lucide-react";
+import React, { useRef, useState, useEffect } from "react";
+import { Sparkles, CheckCircle, FileText, Activity } from "lucide-react";
 import "./Home.scss";
-import { useInterview } from "../hooks/useINterview";
+import { useInterview } from "../hooks/useInterview";
 import { useNavigate } from "react-router";
+import gsap from "gsap";
+
+const LoadingOverlay = () => {
+    const textRef = useRef(null);
+    const [index, setIndex] = useState(0);
+
+    const messages = [
+        "Analyzing job description...",
+        "Parsing candidate resume...",
+        "Calculating match score...",
+        "Evaluating core competencies...",
+        "Generating targeted questions...",
+        "Finalizing interview plan..."
+    ];
+
+    useEffect(() => {
+        if (!textRef.current) return;
+
+        const tl = gsap.timeline({ repeat: -1 });
+
+        messages.forEach((_, i) => {
+            tl.to(textRef.current, {
+                opacity: 0,
+                y: -10,
+                duration: 0.3,
+                ease: "power2.in",
+                onComplete: () => setIndex((i + 1) % messages.length)
+            })
+                .to(textRef.current, {
+                    opacity: 1,
+                    y: 0,
+                    duration: 0.4,
+                    ease: "power2.out"
+                })
+                .to({}, { duration: 1.5 });
+        });
+
+        return () => {
+            tl.kill();
+        };
+    }, [messages.length]);
+
+    return (
+        <main className="loading-container">
+            <div className="loader-orbit">
+                <div className="loader-core">
+                    <Sparkles className="loader-icon" size={32} />
+                </div>
+                <div className="loader-ring ring-1"></div>
+                <div className="loader-ring ring-2"></div>
+            </div>
+            <h2 className="loading-title">Generating...</h2>
+            <div className="loading-text-wrapper">
+                <p ref={textRef} className="loading-text">{messages[index]}</p>
+            </div>
+        </main>
+    );
+};
 
 export const Home = () => {
     const navigate = useNavigate()
-    const { loading, generateReport } = useInterview();
+    const { loading, generateReport, reports, getReports } = useInterview();
+
+    useEffect(() => {
+        getReports();
+    }, []);
+
+    console.log(reports);
 
     const [jobDescription, setJobDescription] = useState("");
     const [selfDescription, setSelfDescription] = useState("");
     const resumeInputRef = useRef();
 
     const [fileName, setFileName] = useState("");
+
     const handleFileChange = (e) => {
         if (e.target.files && e.target.files.length > 0) {
             setFileName(e.target.files[0].name);
@@ -21,12 +86,16 @@ export const Home = () => {
         }
     };
 
+    if (loading) {
+        return <LoadingOverlay />;
+    }
+
     const handleGenerateReport = async () => {
         try {
             const resumeFile = resumeInputRef.current.files[0];
 
             const data = await generateReport({ jobDescription, selfDescription, resumeFile })
-            navigate(`/intevriew/${data._id}`);
+            navigate(`/interview/${data._id}`);
         } catch (error) {
             console.log(error);
             // toast.error(error.message);
@@ -106,6 +175,36 @@ export const Home = () => {
                     </div>
                 </div>
             </section>
+
+            {/* Reports Section */}
+            {reports && reports.length > 0 && (
+                <section className="reports-section">
+                    <h2 className="reports-heading">Recent Reports</h2>
+                    <div className="reports-grid">
+                        {reports.map((report) => (
+                            <div 
+                                key={report._id} 
+                                className="report-card"
+                                onClick={() => navigate(`/interview/${report._id}`)}
+                            >
+                                <div className="report-card-header">
+                                    <h3 className="report-title">{report.title}</h3>
+                                    <span className="report-date">
+                                        {new Date(report.createdAt).toLocaleDateString()}
+                                    </span>
+                                </div>
+                                <div className="report-card-body">
+                                    <div className="score-badge">
+                                        <Activity size={16} />
+                                        <span>{report.matchScore}% Match</span>
+                                    </div>
+                                    <div className="card-action">View Report &rarr;</div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </section>
+            )}
         </main>
     );
 };

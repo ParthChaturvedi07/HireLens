@@ -295,3 +295,214 @@
   0%, 100% { opacity: 1; }
   50% { opacity: 0.4; }
 }
+
+/* Loading Overlay Styles */
+.loading-container {
+  min-height: 100vh;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 100;
+  background: var(--bg-dark, #0f172a);
+}
+
+.loader-orbit {
+  position: relative;
+  width: 120px;
+  height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: var(--space-xl);
+
+  .loader-core {
+    position: relative;
+    z-index: 2;
+    color: var(--color-primary);
+    animation: pulse 2s infinite ease-in-out;
+  }
+
+  .loader-ring {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    border: 2px solid transparent;
+    
+    &.ring-1 {
+      border-top-color: var(--color-primary);
+      border-right-color: var(--color-primary-light);
+      animation: spin 1.5s linear infinite;
+    }
+
+    &.ring-2 {
+      inset: 15px;
+      border-bottom-color: var(--color-accent-2);
+      border-left-color: var(--color-accent-2);
+      animation: spin-reverse 2s linear infinite;
+    }
+  }
+}
+
+.loading-title {
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin-bottom: var(--space-sm);
+  background: var(--gradient-brand);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.loading-text-wrapper {
+  height: 30px;
+  overflow: visible;
+  position: relative;
+  text-align: center;
+}
+
+.loading-text {
+  font-size: 1.1rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+  margin: 0;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes spin-reverse {
+  to { transform: rotate(-360deg); }
+}
+
+/* Reports Section */
+.reports-section {
+  width: 100%;
+  max-width: 1200px;
+  margin-top: var(--space-3xl);
+  animation: fadeInUp 0.6s ease 0.4s both;
+}
+
+.reports-heading {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: var(--space-xl);
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+
+  &::before {
+    content: '';
+    width: 30px;
+    height: 4px;
+    border-radius: var(--radius-full);
+    background: var(--gradient-brand);
+  }
+}
+
+.reports-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: var(--space-xl);
+}
+
+.report-card {
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-xl);
+  padding: var(--space-xl);
+  cursor: pointer;
+  transition: all var(--transition-base);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0.05) 0%,
+      transparent 100%
+    );
+    opacity: 0;
+    transition: opacity var(--transition-base);
+  }
+
+  &:hover {
+    transform: translateY(-4px);
+    border-color: rgba(99, 102, 241, 0.3);
+    box-shadow: 0 10px 40px -10px rgba(99, 102, 241, 0.2);
+
+    &::before {
+      opacity: 1;
+    }
+
+    .card-action {
+      opacity: 1;
+      transform: translateX(0);
+      color: var(--color-primary-light);
+    }
+  }
+}
+
+.report-card-header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.report-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.report-date {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.report-card-body {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: auto;
+}
+
+.score-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  padding: var(--space-xs) var(--space-sm);
+  background: rgba(34, 211, 238, 0.1);
+  color: var(--color-accent-2);
+  border: 1px solid rgba(34, 211, 238, 0.2);
+  border-radius: var(--radius-lg);
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.card-action {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  opacity: 0.7;
+  transform: translateX(-5px);
+  transition: all var(--transition-base);
+}
