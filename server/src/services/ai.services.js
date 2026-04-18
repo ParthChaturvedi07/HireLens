@@ -128,7 +128,7 @@ async function generateInterviewReport({ resume, selfDescription, jobDescription
             });
 
             const rawText = response.text;
-            console.log(`=== RAW AI RESULT (Attempt ${attempt}) ===`, rawText);
+            // console.log(`=== RAW AI RESULT (Attempt ${attempt}) ===`, rawText);
 
             let parsed = JSON.parse(rawText);
 
