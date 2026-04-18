@@ -13,7 +13,11 @@ import {
   MessageSquare,
   Activity,
   User,
-  Clock
+  Clock,
+  FileText,
+  Loader2,
+  X,
+  Download
 } from 'lucide-react';
 import './Interview.scss';
 import { useInterview } from '../hooks/useInterview';
@@ -61,7 +65,24 @@ const QuestionItem = ({ question, index }) => {
 
 export const Interview = () => {
   const { interviewId } = useParams();
-  const { report, getReportById, loading } = useInterview();
+  const { report, getReportById, loading, getResumeUrl } = useInterview();
+
+  const [resumeUrl, setResumeUrl] = useState(null);
+  const [isGeneratingResume, setIsGeneratingResume] = useState(false);
+  const [showResumeModal, setShowResumeModal] = useState(false);
+
+  const handleGenerateResume = async () => {
+    setIsGeneratingResume(true);
+    try {
+      const url = await getResumeUrl(report._id);
+      setResumeUrl(url);
+      setShowResumeModal(true);
+    } catch (error) {
+      console.error("Failed to generate resume", error);
+    } finally {
+      setIsGeneratingResume(false);
+    }
+  };
 
   React.useEffect(() => {
     if (!report || report._id !== interviewId) {
@@ -142,6 +163,19 @@ export const Interview = () => {
             ))}
           </div>
         </section>
+
+        <button 
+          className="generate-resume-btn" 
+          onClick={handleGenerateResume} 
+          disabled={isGeneratingResume}
+        >
+          {isGeneratingResume ? (
+            <><Loader2 className="animate-spin" size={18} /> Generating...</>
+          ) : (
+            <><FileText size={18} /> Generate Resume</>
+          )}
+        </button>
+
       </aside>
 
       {/* MAIN CONTENT AREA: Scrollable independently */}
@@ -178,6 +212,45 @@ export const Interview = () => {
           </div>
         </div>
       </section>
+
+      {/* Resume Modal */}
+      {showResumeModal && (
+        <div className="resume-modal-overlay">
+          <div className="resume-modal-content">
+            <div className="modal-header">
+              <h2>Generated ATS Resume</h2>
+              <button 
+                className="close-btn" 
+                onClick={() => setShowResumeModal(false)}
+              >
+                <X size={24} />
+              </button>
+            </div>
+            <div className="modal-body">
+              <iframe 
+                src={resumeUrl} 
+                title="Resume Preview" 
+                className="resume-preview-iframe"
+              />
+            </div>
+            <div className="modal-footer">
+              <button 
+                className="download-btn"
+                onClick={() => {
+                  const link = document.createElement('a');
+                  link.href = resumeUrl;
+                  link.setAttribute('download', `resume_${report._id}.pdf`);
+                  document.body.appendChild(link);
+                  link.click();
+                  document.body.removeChild(link);
+                }}
+              >
+                <Download size={18} /> Download PDF
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </main>
   );
 };
